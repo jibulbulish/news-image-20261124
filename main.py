@@ -348,6 +348,14 @@ def draw_world_map(cv, x, y, w, h):
             mx, my = mx + dx, my + dy
         cv.circle(mx, my, 7, accent, fill=True)
         draw_text(cv, mx - 2, my - 3, str(idx), 1, INK)
+        if idx == 1:
+            # hero story: double ring + crosshair ticks so the Hormuz
+            # marker stands out from the other six
+            cv.circle(mx, my, 11, accent)
+            cv.circle(mx, my, 15, accent)
+            for tx, ty in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+                cv.line(mx + tx * 18, my + ty * 18,
+                        mx + tx * 23, my + ty * 23, accent)
 
 # ---------------------------------------------------------------- icons
 def icon_drone(cv, x, y, s, c):
@@ -363,14 +371,26 @@ def icon_drone(cv, x, y, s, c):
     cv.rect(cx - 8, cy - 5, 16, 10, c)
 
 def icon_jet(cv, x, y, s, c):
-    # Fighter jet in side view, nose right (story 03: jets off Korea).
+    # Fighter jet, side view, nose right: long fuselage, sharp nose,
+    # glass canopy, big swept delta wing, tall tail fin, twin exhaust
+    # (story 03: jets off Korea).
     cx, cy = x + s // 2, y + s // 2
-    cv.rect(x + 4, cy - 3, 28, 6, c)
-    cv.triangle(x + 32, cy - 5, x + 44, cy, x + 32, cy + 5, c)
-    cv.triangle(x + 14, cy - 2, x + 24, cy - 16, x + 28, cy - 2, c)
-    cv.triangle(x + 16, cy + 2, x + 24, cy + 14, x + 28, cy + 2, c)
-    cv.triangle(x + 4, cy - 2, x + 8, cy - 12, x + 12, cy - 2, c)
-    cv.rect(x, cy - 2, 4, 4, c)
+    # fuselage + pointed nose
+    cv.rect(x + 2, cy - 3, 34, 6, c)
+    cv.triangle(x + 36, cy - 4, x + 44, cy, x + 36, cy + 4, c)
+    # canopy: raised glass hump over the front third, INK glint cutout
+    cv.triangle(x + 24, cy - 3, x + 30, cy - 10, x + 33, cy - 3, c)
+    cv.triangle(x + 27, cy - 3, x + 30, cy - 7, x + 31, cy - 3, INK)
+    # big swept delta wing below the fuselage
+    cv.triangle(x + 14, cy + 3, x + 34, cy + 3, x + 20, cy + 18, c)
+    # tail fin, swept back, and small rear stabiliser
+    cv.triangle(x + 4, cy - 3, x + 8, cy - 17, x + 14, cy - 3, c)
+    cv.triangle(x + 2, cy + 3, x + 12, cy + 12, x + 14, cy + 3, c)
+    # twin exhaust nozzles at the tail
+    cv.rect(x, cy - 2, 3, 2, c)
+    cv.rect(x, cy + 1, 3, 2, c)
+    # air intake slot under the nose
+    cv.rect(x + 30, cy + 3, 6, 2, INK)
 
 def icon_flame(cv, x, y, s, c):
     # Flame: triangle tongue over a filled base, inner cutout
@@ -388,17 +408,26 @@ def icon_chart(cv, x, y, s, c):
     cv.line(x, y + s // 4, x + s, y + s // 2, RED)
 
 def icon_wheat(cv, x, y, s, c):
-    # Wheat stalk: central stem, paired grains, two leaves
+    # Wheat ear: tall stem, two staggered rows of pointed grains,
+    # a top grain, thin awns fanning out, two long leaves at the base
     # (story 06: food aid at risk).
     cx = x + s // 2
-    cv.vline(cx, y + 4, s - 8, c)
-    for i in range(3):
-        gy = y + 6 + i * 9
-        cv.circle(cx - 6, gy, 4, c, fill=True)
-        cv.circle(cx + 6, gy + 4, 4, c, fill=True)
-    cv.circle(cx, y + 4, 4, c, fill=True)
-    cv.line(cx, y + s - 12, cx - 12, y + s - 2, c)
-    cv.line(cx, y + s - 12, cx + 12, y + s - 2, c)
+    cv.vline(cx, y + 10, s - 14, c)
+    # left grains angled up-out; right grains one step lower
+    for i in range(4):
+        gy = y + 10 + i * 7
+        cv.triangle(cx - 1, gy, cx - 9, gy + 2, cx - 1, gy + 6, c)
+        cv.triangle(cx + 1, gy + 3, cx + 9, gy + 5, cx + 1, gy + 9, c)
+    # top grain pointing straight up
+    cv.triangle(cx - 3, y + 12, cx, y + 2, cx + 3, y + 12, c)
+    # thin awns fanning from the tip
+    for dx in (-10, -5, 0, 5, 10):
+        cv.line(cx, y + 4, cx + dx, y - 6 + abs(dx) // 2, c)
+    # long leaves drooping from the lower stem
+    cv.line(cx, y + s - 14, cx - 13, y + s - 2, c)
+    cv.line(cx, y + s - 14, cx + 13, y + s - 2, c)
+    cv.line(cx, y + s - 14, cx - 14, y + s - 6, c)
+    cv.line(cx, y + s - 14, cx + 14, y + s - 6, c)
 
 def icon_shell(cv, x, y, s, c):
     # Artillery shell, nose up (story 07: NATO shell output).
